@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Qadr">
+  <title>Qadr — قدّر</title>
+  <!-- Container corner ratio 0.294 matches the app's 34px / 10px radius exactly. -->
+  <rect width="64" height="64" rx="18.8" fill="#0f7a5f"/>
+  <!-- Purchase pattern: two orders at the shopper's usual level, one spiking over it. -->
+  <g fill="#ffffff">
+    <rect x="14" y="28" width="8" height="20" rx="4" opacity=".45"/>
+    <rect x="28" y="16" width="8" height="32" rx="4"/>
+    <rect x="42" y="28" width="8" height="20" rx="4" opacity=".45"/>
+  </g>
+  <!-- The line Qadr holds: the usual quantity. -->
+  <path d="M10 28H54" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+</svg>

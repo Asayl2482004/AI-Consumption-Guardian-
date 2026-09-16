@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Qadr">
+  <title>Qadr — قدّر (single colour)</title>
+  <!-- Glyph only, in one ink. Set `color` on the parent to recolour. -->
+  <g fill="currentColor">
+    <rect x="14" y="28" width="8" height="20" rx="4" opacity=".4"/>
+    <rect x="28" y="16" width="8" height="32" rx="4"/>
+    <rect x="42" y="28" width="8" height="20" rx="4" opacity=".4"/>
+  </g>
+  <path d="M10 28H54" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+</svg>

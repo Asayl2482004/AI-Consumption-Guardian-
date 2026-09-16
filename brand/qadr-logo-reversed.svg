@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="قدّر Qadr — AI Consumption Guardian">
+  <title>Qadr — قدّر — reversed, for use on the brand green</title>
+
+  <!-- For placement on #0f7a5f or any dark ground. The mark drops its container
+       and sits directly on the surface so two greens never stack. -->
+  <g transform="translate(0 6)">
+    <g transform="translate(26 26) scale(.8125) translate(-32 -32)">
+      <g fill="#ffffff">
+        <rect x="14" y="28" width="8" height="20" rx="4" opacity=".4"/>
+        <rect x="28" y="16" width="8" height="32" rx="4"/>
+        <rect x="42" y="28" width="8" height="20" rx="4" opacity=".4"/>
+      </g>
+      <path d="M10 28H54" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <text x="68" y="34" font-family="Tajawal, -apple-system, 'Segoe UI', system-ui, sans-serif"
+        font-size="25" font-weight="800" fill="#ffffff" letter-spacing="-.3">قدّر · Qadr</text>
+  <text x="68" y="52" font-family="Tajawal, -apple-system, 'Segoe UI', system-ui, sans-serif"
+        font-size="11.5" font-weight="500" fill="#ffffff" opacity=".75">AI Consumption Guardian</text>
+</svg>

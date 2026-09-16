@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 148" width="220" height="148" role="img" aria-label="قدّر Qadr — AI Consumption Guardian">
+  <title>Qadr — قدّر — AI Consumption Guardian (stacked)</title>
+
+  <g transform="translate(78 0)">
+    <rect width="64" height="64" rx="18.8" fill="#0f7a5f"/>
+    <g fill="#ffffff">
+      <rect x="14" y="28" width="8" height="20" rx="4" opacity=".45"/>
+      <rect x="28" y="16" width="8" height="32" rx="4"/>
+      <rect x="42" y="28" width="8" height="20" rx="4" opacity=".45"/>
+    </g>
+    <path d="M10 28H54" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <text x="110" y="106" text-anchor="middle"
+        font-family="Tajawal, -apple-system, 'Segoe UI', system-ui, sans-serif"
+        font-size="28" font-weight="800" fill="#12201c" letter-spacing="-.3">قدّر · Qadr</text>
+  <text x="110" y="126" text-anchor="middle"
+        font-family="Tajawal, -apple-system, 'Segoe UI', system-ui, sans-serif"
+        font-size="12" font-weight="500" fill="#5d6f69">AI Consumption Guardian</text>
+</svg>
