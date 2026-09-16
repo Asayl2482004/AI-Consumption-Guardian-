@@ -69,6 +69,8 @@
   .item.flag .emoji{background:#fff}
   .name{font-weight:700;font-size:14.5px}
   .unit{font-size:12px;color:var(--muted)}
+  /* English product line, so the card states product and unit price outright. */
+  .name-en{font-size:11.5px;color:var(--muted);direction:ltr;text-align:right;margin-top:1px}
   /* The shopper's baseline, shown on the cart row itself so the alert is never a surprise. */
   .usual{font-size:11.5px;color:var(--brand);font-weight:700;direction:ltr;text-align:right;margin-top:2px}
   .item.flag .usual{color:var(--warn)}
@@ -248,15 +250,16 @@
 
         <div class="fact rec">
           <div>
-            <div class="en">We recommend: <span id="fRecEn">2-3</span> units</div>
+            <div class="en">We recommend: <span id="fRecEn">3</span> units</div>
             <div class="k">التوصية</div>
           </div>
-          <div class="big" id="fRec">2-3</div>
+          <div class="big" id="fRec">3</div>
         </div>
       </div>
 
       <p class="basis" id="basis">
         Based on your purchase pattern<br>
+        Based on your last <span id="basisN">6</span> purchases<br>
         <span id="basisAr">بناءً على نمط شرائك.</span>
       </p>
 
@@ -321,21 +324,47 @@
 (function () {
   "use strict";
 
-  // Mock purchase history: `usual` = median quantity over the shopper's last orders.
-  // The scope card's demo numbers (usually 3, currently 7, recommend 2-3) come from the milk row.
-  // `usual` = the shopper's typical quantity; `qty` = what the cart opens with.
+  // `history` = the shopper's quantity on each of their recent orders for that product.
+  // `usual` is derived from it below, never stored. `qty` is what the cart opens with.
   // Milk opens at 7 @ SAR 10 so the card's demo reads exactly 70 / 30 / 40.
   var CATALOG = [
-    { id:"milk",  emoji:"🥛", name:"حليب طويل الأجل ١ لتر", unit:"العبوة", price:10.00, usual:3, qty:7, history:6 },
-    { id:"water", emoji:"💧", name:"ماء معدني ٤٠ × ٢٠٠ مل", unit:"الكرتون", price:12.00, usual:2, qty:2, history:5 },
-    { id:"rice",  emoji:"🍚", name:"أرز بسمتي ٥ كجم",        unit:"الكيس",  price:42.00, usual:1, qty:1, history:4 }
+    { id:"milk",  emoji:"🥛", name:"حليب طويل الأجل ١ لتر", en:"Long-life Milk 1L",
+      unit:"العبوة", unitEn:"unit", price:10.00, qty:7, history:[3, 2, 3, 4, 3, 3] },
+    { id:"water", emoji:"💧", name:"ماء معدني ٤٠ × ٢٠٠ مل", en:"Mineral Water 40 × 200ml",
+      unit:"الكرتون", unitEn:"carton", price:12.00, qty:2, history:[2, 2, 1, 2, 3, 2] },
+    { id:"rice",  emoji:"🍚", name:"أرز بسمتي ٥ كجم", en:"Basmati Rice 5kg",
+      unit:"الكيس", unitEn:"bag", price:42.00, qty:1, history:[1, 1, 2, 1, 1] }
   ];
+
+  // Lightweight local pattern analysis — no external API. The usual quantity is the
+  // value the shopper reaches for most often; ties go to whichever sits nearest the
+  // median, so an outlier order can never drag the baseline up on its own.
+  // Milk's [3,2,3,4,3,3] yields 3.
+  function analyseUsual(history) {
+    var counts = {};
+    history.forEach(function (q) { counts[q] = (counts[q] || 0) + 1; });
+
+    var sorted = history.slice().sort(function (a, b) { return a - b; });
+    var median = sorted[Math.floor(sorted.length / 2)];
+
+    var best = null, bestSeen = 0;
+    Object.keys(counts).forEach(function (key) {
+      var q = Number(key), seen = counts[key];
+      var wins = seen > bestSeen ||
+                 (seen === bestSeen && Math.abs(q - median) < Math.abs(best - median));
+      if (wins) { best = q; bestSeen = seen; }
+    });
+    return best;
+  }
+
+  // Every shopper baseline in the prototype is derived, never hard-coded.
+  CATALOG.forEach(function (it) { it.usual = analyseUsual(it.history); });
 
   // A row is "unusual" once it exceeds the shopper's usual quantity by more than one unit.
   function isUnusual(it) { return it.qty > it.usual + 1; }
 
-  // Recommend the usual quantity, expressed as a small range for the alert copy.
-  function recRange(it) { return Math.max(1, it.usual - 1) + "-" + it.usual; }
+  // Recommend exactly the shopper's own usual quantity.
+  function recommend(it) { return it.usual; }
 
   var money = function (n) { return n.toFixed(2) + " ر.س"; };
 
@@ -362,6 +391,7 @@
           '<div class="emoji">' + it.emoji + '</div>' +
           '<div>' +
             '<div class="name">' + it.name + '</div>' +
+            '<div class="name-en">' + it.en + ' · ' + sar(it.price) + ' / ' + it.unitEn + '</div>' +
             '<div class="unit">' + money(it.price) + " / " + it.unit + '</div>' +
             '<div class="usual">Your usual: ' + it.usual +
               (it.usual === 1 ? ' unit' : ' units') + '</div>' +
@@ -369,7 +399,7 @@
           '<div class="line-total">' + money(it.price * it.qty) + '</div>' +
         '</div>' +
         '<div class="stepper">' +
-          '<span class="qty-label">الكمية</span>' +
+          '<span class="qty-label">الكمية · Current quantity</span>' +
           '<span class="pill">' +
             '<button data-act="dec" data-id="' + it.id + '"' + (it.qty <= 1 ? " disabled" : "") + '>−</button>' +
             '<span class="n">' + it.qty + '</span>' +
@@ -423,11 +453,13 @@
     $("alertItemName").textContent = flagged.name;
     $("fUsual").textContent = $("fUsualEn").textContent = flagged.usual;
     $("fNow").textContent = $("fNowEn").textContent = flagged.qty;
-    $("fRec").textContent = $("fRecEn").textContent = recRange(flagged);
+    $("fRec").textContent = $("fRecEn").textContent = recommend(flagged);
     $("accN").textContent = flagged.usual;
     $("keepN").textContent = flagged.qty;
+    $("basisN").textContent = flagged.history.length;
     $("basisAr").textContent =
-      "بناءً على نمط شرائك في آخر " + flagged.history + " عمليات شراء لهذا المنتج.";
+      "بناءً على نمط شرائك في آخر " + flagged.history.length +
+      " عمليات شراء لهذا المنتج (" + flagged.history.join("، ") + ").";
     show(2);
   });
 
