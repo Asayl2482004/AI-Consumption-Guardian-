@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>قدر · Qadr — AI Consumption Guardian</title>
+<title>قدر · Qadr</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
     font-family:'Tajawal',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
     -webkit-font-smoothing:antialiased; line-height:1.5;
   }
+  /* dir lives on .phone (not <html>) so this markup also works when embedded. */
   .phone{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
 
   /* ---------- top bar ---------- */
@@ -176,7 +177,7 @@
 </style>
 </head>
 <body>
-<div class="phone">
+<div class="phone" dir="rtl">
 
   <header class="bar">
     <div class="logo">قدر</div>
