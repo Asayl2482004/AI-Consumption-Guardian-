@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>قدر · Qadr — AI Consumption Guardian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6f5; --card:#ffffff; --ink:#12201c; --muted:#5d6f69;
+    --line:#e2e8e5; --brand:#0f7a5f; --brand-soft:#e6f4ef;
+    --warn:#b7791f; --warn-soft:#fdf6e7; --warn-line:#f0dcae;
+    --save:#0f7a5f; --danger:#b4413c;
+    --r:16px; --shadow:0 1px 2px rgba(18,32,28,.06), 0 8px 24px rgba(18,32,28,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Tajawal',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  .phone{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
+
+  /* ---------- top bar ---------- */
+  .bar{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 18px calc(14px);
+    background:var(--card);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:5;
+  }
+  .logo{
+    width:34px;height:34px;border-radius:10px;background:var(--brand);
+    color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;flex:none;
+  }
+  .bar h1{margin:0;font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .bar .sub{margin:0;font-size:11.5px;color:var(--muted);font-weight:500}
+  .steps{margin-inline-start:auto;display:flex;gap:5px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .dot.on{background:var(--brand)}
+
+  main{flex:1;padding:18px 18px 28px}
+  .screen{display:none;animation:in .28s ease both}
+  .screen.on{display:block}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 6px
+  }
+  h2{margin:0 0 16px;font-size:21px;font-weight:800;letter-spacing:-.02em}
+
+  /* ---------- cart ---------- */
+  .item{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px;margin-bottom:10px;box-shadow:var(--shadow);
+  }
+  .item.flag{border-color:var(--warn-line);background:var(--warn-soft)}
+  .row{display:flex;align-items:center;gap:12px}
+  .emoji{
+    width:46px;height:46px;border-radius:12px;background:var(--bg);
+    display:grid;place-items:center;font-size:23px;flex:none
+  }
+  .item.flag .emoji{background:#fff}
+  .name{font-weight:700;font-size:14.5px}
+  .unit{font-size:12px;color:var(--muted)}
+  .line-total{margin-inline-start:auto;font-weight:700;font-size:14.5px;white-space:nowrap}
+
+  .stepper{display:flex;align-items:center;gap:0;margin-top:12px;justify-content:space-between}
+  .qty-label{font-size:12px;color:var(--muted);font-weight:500}
+  /* Steppers stay LTR so the control reads − 3 + regardless of page direction. */
+  .pill{display:flex;align-items:center;background:var(--bg);border-radius:11px;padding:3px;direction:ltr}
+  .item.flag .pill{background:#fff}
+  .pill button{
+    width:34px;height:34px;border:0;background:transparent;border-radius:9px;
+    font-size:19px;font-weight:700;color:var(--brand);cursor:pointer;
+    font-family:inherit;line-height:1;transition:background .12s
+  }
+  .pill button:active{background:var(--brand-soft)}
+  .pill button:disabled{color:#c2ccc9;cursor:default}
+  .pill .n{min-width:34px;text-align:center;font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+
+  .hint{
+    display:flex;gap:7px;align-items:flex-start;
+    margin-top:11px;padding-top:11px;border-top:1px dashed var(--warn-line);
+    font-size:12.5px;color:var(--warn);font-weight:500;line-height:1.45
+  }
+
+  .totals{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px;margin-top:14px;box-shadow:var(--shadow)
+  }
+  .trow{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-bottom:8px}
+  .trow.grand{
+    margin:0;padding-top:10px;border-top:1px solid var(--line);
+    color:var(--ink);font-weight:800;font-size:17px
+  }
+
+  /* ---------- alert ---------- */
+  .alert-top{text-align:center;padding:6px 0 18px}
+  .shield{
+    width:62px;height:62px;border-radius:19px;background:var(--warn-soft);
+    border:1px solid var(--warn-line);display:grid;place-items:center;
+    font-size:30px;margin:0 auto 14px
+  }
+  .alert-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    overflow:hidden;box-shadow:var(--shadow)
+  }
+  .alert-head{
+    padding:13px 16px;background:var(--warn-soft);border-bottom:1px solid var(--warn-line);
+    font-weight:700;font-size:13.5px;color:var(--warn);display:flex;align-items:center;gap:8px
+  }
+  .fact{
+    display:flex;align-items:center;gap:13px;padding:15px 16px;
+    border-bottom:1px solid var(--line)
+  }
+  .fact:last-child{border-bottom:0}
+  .fact .k{font-size:12.5px;color:var(--muted);font-weight:500}
+  .fact .en{font-size:14.5px;font-weight:700;direction:ltr;text-align:left}
+  .fact .big{
+    margin-inline-start:auto;font-size:24px;font-weight:800;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em
+  }
+  .fact.now .big{color:var(--danger)}
+  .fact.rec .big{color:var(--save)}
+  .basis{
+    font-size:12px;color:var(--muted);text-align:center;
+    margin:14px 2px 0;line-height:1.6
+  }
+
+  /* ---------- savings ---------- */
+  .save-hero{
+    background:var(--brand);color:#fff;border-radius:var(--r);
+    padding:22px 18px;text-align:center;margin-bottom:14px;
+    box-shadow:0 8px 24px rgba(15,122,95,.22)
+  }
+  .save-hero .lbl{font-size:12.5px;opacity:.9;font-weight:500;margin-bottom:4px}
+  .save-hero .amt{
+    font-size:40px;font-weight:800;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums;line-height:1.1
+  }
+  .save-hero .amt span{font-size:19px;font-weight:700;opacity:.92}
+  .save-hero .en{font-size:11.5px;opacity:.8;direction:ltr;margin-top:6px}
+
+  .brk{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:4px 16px;box-shadow:var(--shadow)
+  }
+  .brow{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:13px 0;border-bottom:1px solid var(--line)
+  }
+  .brow:last-child{border-bottom:0}
+  .brow .k{font-size:13px;font-weight:500}
+  .brow .k small{display:block;font-size:10.5px;color:var(--muted);direction:ltr;text-align:left;font-weight:500}
+  .brow .v{font-weight:700;font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .brow .v.was{color:var(--muted);text-decoration:line-through;font-weight:500}
+  .brow .v.now{color:var(--save)}
+
+  /* ---------- buttons ---------- */
+  .actions{margin-top:18px;display:flex;flex-direction:column;gap:9px}
+  button.btn{
+    width:100%;padding:15px;border-radius:13px;border:1px solid transparent;
+    font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+    transition:transform .08s, background .15s
+  }
+  button.btn:active{transform:scale(.985)}
+  .primary{background:var(--brand);color:#fff}
+  .secondary{background:var(--card);color:var(--ink);border-color:var(--line)}
+  .ghost{background:transparent;color:var(--muted);font-weight:500;font-size:13.5px;padding:10px}
+
+  .foot{text-align:center;font-size:10.5px;color:#93a29d;padding:4px 18px 22px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <header class="bar">
+    <div class="logo">قدر</div>
+    <div>
+      <h1>قدر · Qadr</h1>
+      <p class="sub">AI Consumption Guardian</p>
+    </div>
+    <div class="steps" id="steps">
+      <div class="dot on"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ========== SCREEN 1 — CART ========== -->
+    <section class="screen on" id="s1">
+      <p class="eyebrow">Shopping Cart</p>
+      <h2>سلة التسوق</h2>
+      <div id="items"></div>
+
+      <div class="totals">
+        <div class="trow"><span>عدد القطع</span><span id="tCount">0</span></div>
+        <div class="trow"><span>الشحن</span><span>مجاني</span></div>
+        <div class="trow grand"><span>الإجمالي</span><span id="tTotal">0.00 ر.س</span></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="toCheckout">إتمام الشراء · Checkout</button>
+      </div>
+    </section>
+
+    <!-- ========== SCREEN 2 — AI ALERT ========== -->
+    <section class="screen" id="s2">
+      <div class="alert-top">
+        <div class="shield">🛡️</div>
+        <p class="eyebrow" style="margin-bottom:4px">AI Consumption Alert</p>
+        <h2 style="margin:0">تنبيه استهلاك</h2>
+      </div>
+
+      <div class="alert-card">
+        <div class="alert-head"><span id="alertItemEmoji">🥛</span><span id="alertItemName">—</span></div>
+
+        <div class="fact">
+          <div>
+            <div class="en">You usually add</div>
+            <div class="k">كميتك المعتادة</div>
+          </div>
+          <div class="big" id="fUsual">3</div>
+        </div>
+
+        <div class="fact now">
+          <div>
+            <div class="en">You currently have</div>
+            <div class="k">الكمية الحالية في السلة</div>
+          </div>
+          <div class="big" id="fNow">7</div>
+        </div>
+
+        <div class="fact rec">
+          <div>
+            <div class="en">We recommend</div>
+            <div class="k">التوصية</div>
+          </div>
+          <div class="big" id="fRec">2-3</div>
+        </div>
+      </div>
+
+      <p class="basis" id="basis">
+        بناءً على آخر ٦ عمليات شراء لك لهذا المنتج.
+      </p>
+
+      <div class="actions">
+        <button class="btn primary" id="accept">تعديل الكمية إلى <span id="accN">3</span> · Adjust</button>
+        <button class="btn secondary" id="keep">أحتاج الكمية · Keep <span id="keepN">7</span></button>
+        <button class="btn ghost" id="backCart">رجوع للسلة</button>
+      </div>
+    </section>
+
+    <!-- ========== SCREEN 3 — SAVINGS ========== -->
+    <section class="screen" id="s3">
+      <p class="eyebrow">Checkout / Savings</p>
+      <h2>الملخص والتوفير</h2>
+
+      <div class="save-hero">
+        <div class="lbl">وفّرت في هذه العملية</div>
+        <div class="amt" id="savedAmt">0.00 <span>ر.س</span></div>
+        <div class="en" id="savedEn">Potential saving: SAR 0.00</div>
+      </div>
+
+      <div class="brk">
+        <div class="brow">
+          <div class="k">الكمية المتوقعة<small>Expected quantity</small></div>
+          <div class="v" id="bQty">3</div>
+        </div>
+        <div class="brow">
+          <div class="k">القيمة الحالية<small>Current cash value</small></div>
+          <div class="v was" id="bBefore">0.00 ر.س</div>
+        </div>
+        <div class="brow">
+          <div class="k">المبلغ بعد التوصية<small>Cash amount after recommendation</small></div>
+          <div class="v now" id="bAfter">0.00 ر.س</div>
+        </div>
+        <div class="brow">
+          <div class="k">التوفير المحتمل<small>Potential saving</small></div>
+          <div class="v now" id="bSaved">0.00 ر.س</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="done">تأكيد الطلب · Confirm order</button>
+        <button class="btn ghost" id="restart">إعادة العرض من البداية</button>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="foot">
+    نموذج أولي · Universities Challenge 2026 by StartSmart — معسكر جدة<br>
+    التوصية مبنية على سجل شراء تجريبي داخل المتصفح. لا يوجد تسجيل دخول أو دفع حقيقي.
+  </p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Mock purchase history: `usual` = median quantity over the shopper's last orders.
+  // The scope card's demo numbers (usually 3, currently 7, recommend 2-3) come from the milk row.
+  var CATALOG = [
+    { id:"milk",  emoji:"🥛", name:"حليب طويل الأجل ١ لتر", unit:"العبوة", price:8.50,  usual:3, qty:3, history:6 },
+    { id:"water", emoji:"💧", name:"ماء معدني ٤٠ × ٢٠٠ مل", unit:"الكرتون", price:12.00, usual:2, qty:2, history:5 },
+    { id:"rice",  emoji:"🍚", name:"أرز بسمتي ٥ كجم",        unit:"الكيس",  price:42.00, usual:1, qty:1, history:4 }
+  ];
+
+  // A row is "unusual" once it exceeds the shopper's usual quantity by more than one unit.
+  function isUnusual(it) { return it.qty > it.usual + 1; }
+
+  // Recommend the usual quantity, expressed as a small range for the alert copy.
+  function recRange(it) { return Math.max(1, it.usual - 1) + "-" + it.usual; }
+
+  var money = function (n) { return n.toFixed(2) + " ر.س"; };
+  var $ = function (id) { return document.getElementById(id); };
+
+  var flagged = null; // item that triggered the alert
+  var accepted = false;
+
+  /* ---------- screen 1 ---------- */
+  function renderCart() {
+    var box = $("items");
+    box.innerHTML = "";
+
+    CATALOG.forEach(function (it) {
+      var bad = isUnusual(it);
+      var el = document.createElement("div");
+      el.className = "item" + (bad ? " flag" : "");
+      el.innerHTML =
+        '<div class="row">' +
+          '<div class="emoji">' + it.emoji + '</div>' +
+          '<div>' +
+            '<div class="name">' + it.name + '</div>' +
+            '<div class="unit">' + money(it.price) + " / " + it.unit + '</div>' +
+          '</div>' +
+          '<div class="line-total">' + money(it.price * it.qty) + '</div>' +
+        '</div>' +
+        '<div class="stepper">' +
+          '<span class="qty-label">الكمية</span>' +
+          '<span class="pill">' +
+            '<button data-act="dec" data-id="' + it.id + '"' + (it.qty <= 1 ? " disabled" : "") + '>−</button>' +
+            '<span class="n">' + it.qty + '</span>' +
+            '<button data-act="inc" data-id="' + it.id + '">+</button>' +
+          '</span>' +
+        '</div>' +
+        (bad
+          ? '<div class="hint"><span>⚠️</span><span>كمية أعلى من المعتاد — معتادك ' +
+            it.usual + '. سيراجعها قدر قبل الدفع.</span></div>'
+          : "");
+      box.appendChild(el);
+    });
+
+    var count = 0, total = 0;
+    CATALOG.forEach(function (it) { count += it.qty; total += it.qty * it.price; });
+    $("tCount").textContent = count;
+    $("tTotal").textContent = money(total);
+  }
+
+  $("items").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-act]");
+    if (!b) return;
+    var it = CATALOG.filter(function (x) { return x.id === b.dataset.id; })[0];
+    if (!it) return;
+    it.qty = b.dataset.act === "inc" ? it.qty + 1 : Math.max(1, it.qty - 1);
+    renderCart();
+  });
+
+  /* ---------- navigation ---------- */
+  function show(n) {
+    ["s1", "s2", "s3"].forEach(function (id, i) {
+      $(id).classList.toggle("on", i === n - 1);
+    });
+    var dots = $("steps").children;
+    for (var i = 0; i < dots.length; i++) dots[i].classList.toggle("on", i <= n - 1);
+    window.scrollTo(0, 0);
+  }
+
+  $("toCheckout").addEventListener("click", function () {
+    // Guard the largest over-buy; if nothing is unusual, go straight to the summary.
+    var bad = CATALOG.filter(isUnusual).sort(function (a, b) {
+      return (b.qty - b.usual) * b.price - (a.qty - a.usual) * a.price;
+    });
+
+    if (!bad.length) { flagged = null; accepted = false; renderSummary(); show(3); return; }
+
+    flagged = bad[0];
+    accepted = false;
+    $("alertItemEmoji").textContent = flagged.emoji;
+    $("alertItemName").textContent = flagged.name;
+    $("fUsual").textContent = flagged.usual;
+    $("fNow").textContent = flagged.qty;
+    $("fRec").textContent = recRange(flagged);
+    $("accN").textContent = flagged.usual;
+    $("keepN").textContent = flagged.qty;
+    $("basis").textContent =
+      "بناءً على آخر " + flagged.history + " عمليات شراء لك لهذا المنتج.";
+    show(2);
+  });
+
+  $("accept").addEventListener("click", function () {
+    accepted = true;
+    renderSummary();
+    show(3);
+    flagged.qty = flagged.usual; // applied to the cart behind the summary
+    renderCart();
+  });
+
+  $("keep").addEventListener("click", function () {
+    accepted = false;
+    renderSummary();
+    show(3);
+  });
+
+  $("backCart").addEventListener("click", function () { show(1); });
+
+  /* ---------- screen 3 ---------- */
+  function renderSummary() {
+    var before = 0;
+    CATALOG.forEach(function (it) { before += it.qty * it.price; });
+
+    var saved = (accepted && flagged) ? (flagged.qty - flagged.usual) * flagged.price : 0;
+    var after = before - saved;
+
+    $("bQty").textContent = flagged ? (accepted ? flagged.usual : flagged.qty) : "—";
+    $("bBefore").textContent = money(before);
+    $("bAfter").textContent = money(after);
+    $("bSaved").textContent = money(saved);
+    $("savedAmt").innerHTML = saved.toFixed(2) + ' <span>ر.س</span>';
+    $("savedEn").textContent = "Potential saving: SAR " + saved.toFixed(2);
+
+    // When the shopper keeps the original quantity there is nothing to celebrate.
+    $("bBefore").classList.toggle("was", saved > 0);
+    document.querySelector(".save-hero").style.opacity = saved > 0 ? "1" : ".55";
+  }
+
+  $("done").addEventListener("click", function () {
+    $("done").textContent = "تم تأكيد الطلب ✓";
+    $("done").disabled = true;
+  });
+
+  $("restart").addEventListener("click", function () {
+    CATALOG.forEach(function (it) { it.qty = it.usual; });
+    flagged = null; accepted = false;
+    $("done").textContent = "تأكيد الطلب · Confirm order";
+    $("done").disabled = false;
+    renderCart();
+    show(1);
+  });
+
+  renderCart();
+})();
+</script>
+</body>
+</html>
